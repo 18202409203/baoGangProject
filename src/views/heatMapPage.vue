@@ -22,7 +22,9 @@ export default {
           let xData = Response.data.axis_x;
           let yData = Response.data.axis_y;
           let rawData = Response.data.fqc_data;
-          this.$refs.heatmap.paint(xData, yData, rawData);
+          let xAverage = Response.data.fqc_datax_ave;
+          let yAverage = Response.data.fqc_datay_ave;
+          this.$refs.heatmap.paint(xData, yData, rawData, xAverage, yAverage);
         });
     },
   }
@@ -32,7 +34,6 @@ export default {
 <style>
 .button_bar {
   background: #c9c9c9;
-  margin: 1px;
   padding: 10px 20px;
 }
 .margin0_5px {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :id="chartId" style="height: 450px; width: 1200px;"></div>
+    <div :id="chartId" style="height: 800px; width: 1200px;"></div>
   </div>
 </template>
 
@@ -15,8 +15,8 @@ export default {
   },
   methods: {
     // 绘图
-    paint(xData, yData, rawData) {
-      console.log(xData, yData, rawData);
+    paint(xData, yData, rawData, xAverage, yAverage) {
+      // console.log(xData, yData, rawData, xAverage, yAverage);
       // 处理数据
       var data = [];
       for (let i = 0; i < xData.length; i++) {
@@ -27,22 +27,51 @@ export default {
 
       var option = {
         tooltip: {},
-        grid: {
-          right: 10,
-          left: 140
-        },
-        xAxis: {
-          type: "category",
-          data: xData
-        },
-        yAxis: {
-          type: "category",
-          data: yData
-        },
+        grid: [
+          { x: "15%", y: "4%", width: "50%", height: "44%" },
+          { x2: "1%", y: "4%", width: "32%", height: "44%" },
+          { x: "15%", y2: "4%", width: "50%", height: "44%"}
+        ],
+        xAxis: [
+          {
+            type: "category",
+            data: xData,
+            gridIndex: 0
+          },
+          {
+            type: "value",
+            gridIndex: 1
+          },
+          {
+            type: "category",
+            axisLabel: { show: false },
+            data: xData,
+            gridIndex: 2
+          }
+        ],
+        yAxis: [
+          {
+            type: "category",
+            data: yData,
+            gridIndex: 0
+          },
+          {
+            type: "category",
+            axisLabel: { show: false },
+            data: yData,
+            gridIndex: 1
+          },
+          {
+            type: "value",
+            inverse: true,
+            gridIndex: 2
+          }
+        ],
         visualMap: {
           type: "piecewise",
           min: -10,
           max: 10,
+          seriesIndex: 0,
           calculable: true,
           realtime: false,
           splitNumber: 8,
@@ -70,12 +99,33 @@ export default {
             name: "thickness",
             type: "heatmap",
             data: data,
+            xAxisIndex: 0,
+            yAxisIndex: 0,
             itemStyle: {
               emphasis: {
                 borderColor: "#333",
                 borderWidth: 1
               }
             },
+            progressive: 1000,
+            animation: false
+          },
+          {
+            name: "yAverage",
+            type: "bar",
+            smooth: true,
+            yAxisIndex: 1,
+            xAxisIndex: 1,
+            data: yAverage,
+            progressive: 1000,
+            animation: false
+          },
+          {
+            name: "xAverage",
+            type: "bar",
+            xAxisIndex: 2,
+            yAxisIndex: 2,
+            data: xAverage,
             progressive: 1000,
             animation: false
           }
