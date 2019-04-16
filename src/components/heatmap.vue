@@ -15,8 +15,8 @@ export default {
   },
   methods: {
     // 绘图
-    paint(xData, yData, rawData, xAverage, yAverage) {
-      // console.log(xData, yData, rawData, xAverage, yAverage);
+    paint(xData, yData, rawData, xAverage, yAverage, crown, wedge) {
+      console.log(xData, yData, rawData, xAverage, yAverage, crown, wedge);
       // 处理数据
       var data = [];
       for (let i = 0; i < xData.length; i++) {
@@ -28,9 +28,11 @@ export default {
       var option = {
         tooltip: {},
         grid: [
-          { x: "15%", y: "4%", width: "50%", height: "44%" },
-          { x2: "1%", y: "4%", width: "32%", height: "44%" },
-          { x: "15%", y2: "4%", width: "50%", height: "44%"}
+          { x: "15%", y: "4%", width: "70%", height: "44%" },
+          { x2: "1%", y: "4%", width: "12%", height: "44%" },
+          { x: "15%", y2: "32%", width: "70%", height: "13%" },
+          { x: "15%", y2: "17%", width: "70%", height: "13%" },
+          { x: "15%", y2: "2%", width: "70%", height: "13%" },
         ],
         xAxis: [
           {
@@ -44,9 +46,27 @@ export default {
           },
           {
             type: "category",
+            axisLine: {show:false},
+            axisTick: {show:false},
             axisLabel: { show: false },
             data: xData,
             gridIndex: 2
+          },
+          {
+            type: "category",
+            axisLine: {show:false},
+            axisTick: {show:false},
+            axisLabel: { show: false },
+            data: xData,
+            gridIndex: 3
+          },
+          {
+            type: "category",
+            axisLine: {show:false},
+            axisTick: {show:false},
+            axisLabel: { show: false },
+            data: xData,
+            gridIndex: 4
           }
         ],
         yAxis: [
@@ -57,6 +77,8 @@ export default {
           },
           {
             type: "category",
+            axisLine: {show:false},
+            axisTick: {show:false},
             axisLabel: { show: false },
             data: yData,
             gridIndex: 1
@@ -65,6 +87,16 @@ export default {
             type: "value",
             inverse: true,
             gridIndex: 2
+          },
+          {
+            type: "value",
+            inverse: true,
+            gridIndex: 3
+          },
+          {
+            type: "value",
+            inverse: true,
+            gridIndex: 4
           }
         ],
         visualMap: {
@@ -112,23 +144,69 @@ export default {
           },
           {
             name: "yAverage",
-            type: "bar",
-            smooth: true,
+            type: "line",
+            // smooth: true,
             yAxisIndex: 1,
             xAxisIndex: 1,
             data: yAverage,
+            itemStyle: {
+              normal: {
+                lineStyle: {
+                  color: "#85bee6"
+                }
+              }
+            },
             progressive: 1000,
             animation: false
           },
           {
             name: "xAverage",
-            type: "bar",
+            type: "line",
             xAxisIndex: 2,
             yAxisIndex: 2,
             data: xAverage,
+            itemStyle: {
+              normal: {
+                lineStyle: {
+                  color: "#85bee6"
+                }
+              }
+            },
             progressive: 1000,
             animation: false
-          }
+          },
+          {
+            name: "crown",
+            type: "line",
+            xAxisIndex: 3,
+            yAxisIndex: 3,
+            data: crown,
+            itemStyle: {
+              normal: {
+                lineStyle: {
+                  color: "#85bee6"
+                }
+              }
+            },
+            progressive: 1000,
+            animation: false
+          },
+          {
+            name: "wedge",
+            type: "line",
+            xAxisIndex: 4,
+            yAxisIndex: 4,
+            data: wedge,
+            itemStyle: {
+              normal: {
+                lineStyle: {
+                  color: "#85bee6"
+                }
+              }
+            },
+            progressive: 1000,
+            animation: false
+          },
         ]
       };
       // paint

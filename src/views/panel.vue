@@ -41,7 +41,7 @@
             <mu-list-item-action>
               <mu-icon value="inbox"></mu-icon>
             </mu-list-item-action>
-            <mu-list-item-title>热力图</mu-list-item-title>
+            <mu-list-item-title>HeatMap</mu-list-item-title>
           </mu-list-item>
         </router-link>
         <router-link to="/example">
@@ -49,7 +49,15 @@
             <mu-list-item-action>
               <mu-icon value="grade"></mu-icon>
             </mu-list-item-action>
-            <mu-list-item-title>echarts示例</mu-list-item-title>
+            <mu-list-item-title>EchartsExample</mu-list-item-title>
+          </mu-list-item>
+        </router-link>
+        <router-link to="/marey">
+          <mu-list-item button>
+            <mu-list-item-action>
+              <mu-icon value="send"></mu-icon>
+            </mu-list-item-action>
+            <mu-list-item-title>MareyChart</mu-list-item-title>
           </mu-list-item>
         </router-link>
         <router-link to="/about">
@@ -57,11 +65,11 @@
             <mu-list-item-action>
               <mu-icon value="send"></mu-icon>
             </mu-list-item-action>
-            <mu-list-item-title>空白页</mu-list-item-title>
+            <mu-list-item-title>About</mu-list-item-title>
           </mu-list-item>
         </router-link>
         <mu-list-item @click="open = false" button>
-          <mu-list-item-title>关闭</mu-list-item-title>
+          <mu-list-item-title>Close Panel</mu-list-item-title>
         </mu-list-item>
       </mu-list>
     </mu-drawer>

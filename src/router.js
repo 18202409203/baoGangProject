@@ -31,5 +31,10 @@ export default new Router({
       name: 'example',
       component: () => import('./components/example.vue')
     },
+    {
+      path: '/marey',
+      name: 'marey',
+      component: () => import('./views/marey.vue')
+    },
   ]
 })
