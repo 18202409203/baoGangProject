@@ -130,11 +130,4 @@ export default {
 </script>
 
 <style>
-.button_bar {
-  background: #c9c9c9;
-  padding: 10px 20px;
-}
-.margin0_5px {
-  margin: 0 5px;
-}
 </style>

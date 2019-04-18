@@ -13,8 +13,8 @@ export default {
       menuId: 'marey',
       jsonData: [],
       stationsData: [],
-      startDate: '2018-09-12 00:00:00',
-      endDate: '2018-09-12 24:00:00'
+      trainGroup: undefined,
+      colors: {},
     }
   },
   methods: {
@@ -30,10 +30,15 @@ export default {
 
       // chart
       // var height = 2400;
+      var defaultStrokeWidth = d3.scaleLinear()
+        .domain([0.006, 0.16])
+        .range([1, 2])
+      var highLightStrokeWidth = 2.5
       var margin = ({ top: 120, right: 100, bottom: 120, left: 100 })
       var _colors = [
-        "H30",
         "L20",
+        "H30",
+        "H20",
         "SC0",
         "B10",
         "000",
@@ -50,16 +55,17 @@ export default {
         "P20",
         "J20",
         "S10",
-        "H20",
         "P10",
         "S60",
         "S20"
       ]
       var colors = {}
-      for(let i = 0; i < _colors.length; i++){
+      for (let i = 0; i < _colors.length; i++) {
         // colors[_colors[i]] = d3.interpolateBlues( (i+1)/_colors.length );
         colors[_colors[i]] = d3.schemeCategory10[i % 10];
       }
+
+      this.colors = colors;
 
       var x = d3.scaleLinear()
         .domain(d3.extent(stations, d => d.distance))
@@ -68,7 +74,8 @@ export default {
       // zpj 2019-4-15 20:02:15
       var minDate = data[0].stops[0].time;
       var maxDate = data.slice(-1)[0].stops.slice(-1)[0].time
-      const timeHeightScale = 1000 / (60*60*1000 * 5) // 每1000高度 时间跨度5小时
+      console.log(minDate, maxDate)
+      const timeHeightScale = 1000 / (60 * 60 * 1000 * 5) // 每1000高度 时间跨度5小时
       var height = (new Date(maxDate).getTime() - new Date(minDate).getTime()) * timeHeightScale
       var y = d3.scaleTime()
         .domain([new Date(minDate), new Date(maxDate)])
@@ -116,9 +123,9 @@ export default {
           //.on("mouseout", () => tooltip.style("display", "none"))
 
           .on("mouseout", d => {
-            let currentIdSearch = "#id" + d.train.slabid;
+            let currentIdSearch = "#id" + d.train.upid;
             d3.select(currentIdSearch)
-              .attr("stroke-width", 1.2)
+              .attr("stroke-width", d => { return defaultStrokeWidth(d.tgtplatethickness2) })
               .selectAll("rect")
               .attr("stroke", "none");
             tooltip.style("display", "none");
@@ -126,9 +133,9 @@ export default {
 
           .on("mouseover", d => {
 
-            let currentIdSearch = "#id" + d.train.slabid;
+            let currentIdSearch = "#id" + d.train.upid;
             d3.select(currentIdSearch)
-              .attr("stroke-width", 2.5)
+              .attr("stroke-width", highLightStrokeWidth)
               .selectAll("rect")
               .attr("stroke", "black");
             //console.log(" currentIdSearch ", currentIdSearch);
@@ -136,7 +143,7 @@ export default {
             tooltip
               .style("display", null)
               .attr("fill", "white");
-            line1.text(`${d.train.slabid}`);
+            line1.text(`${d.train.upid}`);
             line2.text(d.stop.station.name);
             line3.text(d.stop.realTime.toLocaleString(undefined, { hour: "numeric", minute: "numeric" }));
             path
@@ -167,12 +174,14 @@ export default {
 
       const train = svg.append("g")
         .attr("fill", "currentColor")
-        .attr("stroke-width", 1.2)
         .selectAll("g")
         .data(data)
         .join("g")
         .style("color", d => colors[d.productcategory])
-        .attr("id", d => ("id" + d.slabid));
+        .attr("stroke-width", d => { return defaultStrokeWidth(d.tgtplatethickness2) })
+        .attr("id", d => ("id" + d.upid));
+
+      this.trainGroup = train;
 
       train.append("path")
         .attr("fill", "none")
@@ -185,7 +194,7 @@ export default {
         .data(d => d.stops)
         .join("circle")
         .attr("transform", d => `translate(${x(d.station.distance)},${y(new Date(d.time))})`)
-        .attr("r", 0.5);
+        .attr("r", d => d.station.name === "FuDischarging" ? 1.5 : 0.5);
 
       var xAxis = g => g
         .style("font", "12px sans-serif")
@@ -204,12 +213,12 @@ export default {
         .call(g => g.append("line")
           .attr("y1", margin.top - 3)
           .attr("y2", height - margin.bottom + 3)
-          .attr("stroke-opacity",  d => {
+          .attr("stroke-opacity", d => {
             return (d.name === "FuDischarging" || d.name === "MPass24") ? 0.8 : 0.4
-            })
-          )
-          .attr("stroke-dasharray", "1.5,2")
-          .attr("stroke", "currentColor")
+          })
+        )
+        .attr("stroke-dasharray", "1.5,2")
+        .attr("stroke", "currentColor")
         .call(g => g.append("text")
           .attr("transform", `translate(-10,${margin.top + 0}) rotate(-45)`)
           .attr("x", 12)
@@ -223,8 +232,8 @@ export default {
           .text(d => d.name))
 
       var _yAxis = d3.axisLeft(y)
-          .ticks(d3.formatMinute)
-          .tickSize(0)
+        .ticks(d3.formatMinute)
+        .tickSize(0)
       var yAxis = g => g
         .attr("transform", `translate(${margin.left},0)`)
         .style("font", "12px sans-serif")
@@ -260,31 +269,40 @@ export default {
         .call(tooltip);
 
     },
-    getJsonData() {
+    getJsonData(startDate, endDate) {
       // this.$http.get("/api/alldata.json").then(Response => {
       // this.$http.get(`http://219.216.80.83:8083/myf/RollingTimeVisualizationMaretoController/selectRollingTimeVisualizationMaretoDataDto/${this.startDate}/${this.endDate}/0/5/all/all/40/40/40/40`").then(Response => {
-      this.$http.get(`http://219.216.80.83:8083/myf/RollingTimeVisualizationMaretoController/selectRollingTimeVisualizationMaretoDataDto/${this.startDate}/${this.endDate}/0/5/all/all/40/40/40/40/all/50/`).then(Response => {
+      this.$http.get(`http://219.216.80.83:8083/myf/RollingTimeVisualizationMaretoController/selectRollingTimeVisualizationMaretoDataDto/${startDate}/${endDate}/0/5/all/all/40/40/40/40/all/50/`).then(Response => {
         if (Response.status === 200) {
-            this.jsonData = Response.data;
-            this.paintMareyChart(this.jsonData, this.stationsData, this.menuId, 1500);
+          this.jsonData = Response.data;
+          this.paintMareyChart(this.jsonData, this.stationsData, this.menuId, 1500);
         } else {
           console.log("error");
         }
       })
     },
-    getStationsData() {
-      this.$http.get(`http://219.216.80.83:8083/myf/RollingTimeVisualizationMaretoController/selectRollingTimeVisualizationMaretoStationDto/${this.startDate}/${this.endDate}/0/5/all/all/40/40/40/40/all/`).then(Response => {
+    getStationsData(startDate, endDate) {
+      this.$http.get(`http://219.216.80.83:8083/myf/RollingTimeVisualizationMaretoController/selectRollingTimeVisualizationMaretoStationDto/${startDate}/${endDate}/0/5/all/all/40/40/40/40/all/`).then(Response => {
         if (Response.status === 200) {
-            this.stationsData = Response.data;
-            this.getJsonData();
+          this.stationsData = Response.data;
+          this.getJsonData(startDate, endDate);
         } else {
           console.log("error");
         }
       })
+    },
+    changeTrainColor(bool) {
+      if (bool) {
+        this.trainGroup &&
+          this.trainGroup.style('color', d => d.flag === 0 ? 'red' : d3.schemeCategory10[0] )
+      } else {
+        this.trainGroup &&
+          this.trainGroup.style("color", d => this.colors[d.productcategory])
+      }
     }
   },
   mounted() {
-    this.getStationsData();
+    // this.getStationsData();
   }
 }
 </script>
